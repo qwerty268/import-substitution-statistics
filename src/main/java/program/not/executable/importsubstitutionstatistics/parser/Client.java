@@ -7,26 +7,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-
-import java.util.List;
+import program.not.executable.importsubstitutionstatistics.parser.request.RequestBody;
+import program.not.executable.importsubstitutionstatistics.parser.request.RequestBodyDTO;
+import program.not.executable.importsubstitutionstatistics.parser.request.RequestBodyManager;
 
 
 @Service
-public class client {
+public class Client {
     protected final RestTemplate rest;
 
     private static final String PATH = "http://stat.customs.gov.ru/api/DataAnalysis/UnloadData";
 
     @Autowired
-    public client(RestTemplateBuilder builder) {
+    public Client(RestTemplateBuilder builder) {
         this.rest = builder.uriTemplateHandler(new DefaultUriBuilderFactory(PATH))
                 .build();
     }
 
-    private RequestBody createRequest() {
-        RequestBody requestBody = new RequestBody();
-        return requestBody;
-    }
 
     private HttpHeaders getHeaders() {
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -35,13 +32,15 @@ public class client {
         return httpHeaders;
     }
 
-    private ResponseEntity<Object> makeAndSendRequest(RequestBody requestBody) {
-        HttpEntity<RequestBody> requestEntity = new HttpEntity<>(requestBody, getHeaders());
+    public ResponseEntity<Object> makeAndSendRequest(RequestBody body) {
+        RequestBodyDTO requestBody = RequestBodyManager.requestToDTO(body);
 
-        ResponseEntity<Object> shareitServerResponse;
+        HttpEntity<RequestBodyDTO> requestEntity = new HttpEntity<>(requestBody, getHeaders());
+
+        ResponseEntity<Object> substitutionApiResponse;
 
         try {
-            shareitServerResponse = rest.exchange(PATH, HttpMethod.POST, requestEntity, Object.class);
+            substitutionApiResponse = rest.exchange(PATH, HttpMethod.POST, requestEntity, Object.class);
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
         }
