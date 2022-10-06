@@ -10,4 +10,5 @@ public class Beans {
     public RestTemplateBuilder restTemplateBuilder() {
         return new RestTemplateBuilder();
     }
+
 }
